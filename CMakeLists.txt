@@ -13,5 +13,5 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-add_executable(lab_1 traffic_manager.cpp traffic_manager.h traffic_manager_tests.cpp)
+add_executable(lab_1 traffic_manager.cpp traffic_manager.h traffic_manager_tests.cpp graph.cpp graph.h)
 target_link_libraries(lab_1 gtest_main)

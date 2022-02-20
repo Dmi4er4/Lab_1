@@ -4,14 +4,15 @@
 
 #ifndef TRAFFIC_MANAGER_H
 #define TRAFFIC_MANAGER_H
+#include "graph.h"
 #include <utility>
 #include <vector>
 class TrafficManager {
  public:
-  TrafficManager(const Graph& graph,
+  TrafficManager(Graph graph,
                  const std::vector<int>& buns_amounts,
                  const std::vector<int>& vehicles,
-                 int vehicle_capacity) : graph_(graph),
+                 int vehicle_capacity) : graph_(std::move(graph)),
                                          vehicle_capacity_(vehicle_capacity) {
     SetBunsAmounts(buns_amounts);
     SetVehicles(vehicles);
@@ -37,7 +38,7 @@ class TrafficManager {
   std::vector<int> buns_amounts_;
   std::vector<int> vehicles_;
   int vehicle_capacity_;
-  int total_buns_amount_;
-  int total_vehicles_;
+  int total_buns_amount_{};
+  int total_vehicles_{};
 };
 #endif //TRAFFIC_MANAGER_H
