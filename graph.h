@@ -6,6 +6,7 @@
 #define GIT_FIRST_LAB_GRAPH_H
 
 #include <algorithm>
+#include <cassert>
 #include <functional>
 #include <iostream>
 #include <queue>
@@ -25,9 +26,9 @@ class Graph {
   explicit Graph(std::vector<std::vector<Edge>> from);
   explicit Graph(int size);
 
-  int GetEdgeLength(int from, int to);
-  const std::vector<Edge>& GetEdges(int from);
-  int GetSize();
+  int GetEdgeLength(int from, int to) const;
+  const std::vector<Edge>& GetEdges(int from) const;
+  int GetSize() const;
 
   std::vector<Edge> GetAnyPath(int from, int to);
   std::vector<Edge> GetShortestPath(int from, int to);
