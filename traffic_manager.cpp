@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <utility>
 #include "traffic_manager.h"
 
 const int kInfinity = std::numeric_limits<int>::max();
@@ -12,10 +13,12 @@ const int kInfinity = std::numeric_limits<int>::max();
 std::vector<int> TrafficManager::GetBunsAmounts() const {
   return buns_amounts_;
 }
+
 int TrafficManager::GetBunsAmount(int town) const {
   assert(town >= 0 && town < graph_.GetSize());
   return buns_amounts_[town];
 }
+
 void TrafficManager::SetBunsAmounts(const std::vector<int>& buns_amounts) {
   assert(buns_amounts.size() == graph_.GetSize());
   buns_amounts_.resize(buns_amounts.size());
@@ -25,6 +28,7 @@ void TrafficManager::SetBunsAmounts(const std::vector<int>& buns_amounts) {
     total_buns_amount_ += buns_amounts[i];
   }
 }
+
 void TrafficManager::SetBunsAmount(int buns_amount, int town) {
   assert(town >= 0 && town < graph_.GetSize());
   total_buns_amount_ -= buns_amounts_[town];
@@ -49,6 +53,7 @@ void TrafficManager::SetVehicles(const std::vector<int>& vehicles) {
     total_vehicles_ += vehicles[i];
   }
 }
+
 void TrafficManager::SetVehicle(int vehicle, int town) {
   assert(town >= 0 && town < graph_.GetSize());
   total_vehicles_ -= vehicles_[town];
@@ -60,9 +65,11 @@ void TrafficManager::SetVehicle(int vehicle, int town) {
 int TrafficManager::GetTotalBunsAmount() const {
   return total_buns_amount_;
 }
+
 int TrafficManager::GetTotalVehicles() const {
   return total_vehicles_;
 }
+
 int TrafficManager::MoveVehicles(int from, int to, int count) {
   assert(from >= 0 && from < graph_.GetSize());
   assert(to >= 0 && to < graph_.GetSize());
@@ -75,6 +82,7 @@ int TrafficManager::MoveVehicles(int from, int to, int count) {
   }
   return result;
 }
+
 int TrafficManager::Transport(int from, int to, int buns_amount) {
   assert(from >= 0 && from < graph_.GetSize());
   assert(to >= 0 && to < graph_.GetSize());
@@ -108,4 +116,13 @@ int TrafficManager::Transport(int from, int to, int buns_amount) {
   buns_amounts_[from] -= buns_amount;
   buns_amounts_[to] += buns_amount;
   return result;
+}
+TrafficManager::TrafficManager(Graph graph,
+                               const std::vector<int>& buns_amounts,
+                               const std::vector<int>& vehicles,
+                               int vehicle_capacity) {
+  graph_ = std::move(graph);
+  SetBunsAmounts(buns_amounts);
+  SetVehicles(vehicles);
+  vehicle_capacity_ = vehicle_capacity;
 }

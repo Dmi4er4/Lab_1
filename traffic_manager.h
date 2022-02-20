@@ -12,11 +12,7 @@ class TrafficManager {
   TrafficManager(Graph graph,
                  const std::vector<int>& buns_amounts,
                  const std::vector<int>& vehicles,
-                 int vehicle_capacity) : graph_(std::move(graph)),
-                                         vehicle_capacity_(vehicle_capacity) {
-    SetBunsAmounts(buns_amounts);
-    SetVehicles(vehicles);
-  }
+                 int vehicle_capacity);
 
   [[nodiscard]] std::vector<int> GetBunsAmounts() const;
   [[nodiscard]] int GetBunsAmount(int) const;

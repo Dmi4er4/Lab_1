@@ -29,10 +29,10 @@ TEST(TrafficManager, MoveVehicles) {
   std::vector<int> buns_amounts{1, 2, 3, 4, 5};
   std::vector<int> vehicles{5, 4, 3, 2, 1};
   TrafficManager manager(full_graph, buns_amounts, vehicles, 1);
-  int transport_time = manager.MoveVehicles(0,3, 3);
+  int transport_time = manager.MoveVehicles(0, 3, 3);
   EXPECT_EQ(transport_time, 1);
-  vehicles[3] +=3;
-  vehicles[0] -=3;
+  vehicles[3] += 3;
+  vehicles[0] -= 3;
   EXPECT_EQ(manager.GetVehicles(), vehicles);
 }
 
@@ -41,13 +41,13 @@ TEST(TrafficManager, Transport) {
   std::vector<int> buns_amounts{1, 2, 3, 4, 5};
   std::vector<int> vehicles{5, 4, 3, 2, 1};
   TrafficManager manager(full_graph, buns_amounts, vehicles, 1);
-  int transport_time = manager.Transport(4,1, 4);
+  int transport_time = manager.Transport(4, 1, 4);
   EXPECT_EQ(transport_time, 2);
-  buns_amounts[1] +=4;
-  buns_amounts[4] -=4;
-  vehicles[0] -=3;
-  vehicles[4] -=1;
-  vehicles[1] +=4;
+  buns_amounts[1] += 4;
+  buns_amounts[4] -= 4;
+  vehicles[0] -= 3;
+  vehicles[4] -= 1;
+  vehicles[1] += 4;
   EXPECT_EQ(manager.GetVehicles(), vehicles);
   EXPECT_EQ(manager.GetBunsAmounts(), buns_amounts);
 }
