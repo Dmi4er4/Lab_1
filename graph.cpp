@@ -27,7 +27,9 @@ Graph::Graph(int size) : n_(size) {
   }
 }
 
-int Graph::GetEdgeLength(int from, int to) {
+int Graph::GetEdgeLength(int from, int to) const {
+  assert(from >= 0 && from < n_);
+  
   for (Edge edge: connections_[from]) {
     if (edge.to == to) {
       return edge.length;
@@ -36,15 +38,19 @@ int Graph::GetEdgeLength(int from, int to) {
   return 0;
 }
 
-const std::vector<Graph::Edge>& Graph::GetEdges(int from) {
+const std::vector<Graph::Edge>& Graph::GetEdges(int from) const {
+  assert(from >= 0 && from < n_);
   return connections_[from];
 }
 
-int Graph::GetSize() {
+int Graph::GetSize() const {
   return n_;
 }
 
 std::vector<Graph::Edge> Graph::GetAnyPath(int from, int to) {
+  assert(from >= 0 && from < n_);
+  assert(to >= 0 && to < n_);
+
   std::vector<bool> visited(n_, false);
   std::vector<Edge> previous(n_);
 
@@ -79,12 +85,14 @@ std::vector<Graph::Edge> Graph::GetAnyPath(int from, int to) {
     }
   }
 
-  /// add assert (?)
   return std::vector<Edge>();
 }
 
 std::vector<Graph::Edge> Graph::GetShortestPath(int from, int to) {
-  const long long kInfinity = static_cast<long long>(1e18);
+  assert(from >= 0 && from < n_);
+  assert(to >= 0 && to < n_);
+
+  const long long kInfinity = std::numeric_limits<long long>::max();
   std::vector<long long> distance(n_, kInfinity);
   std::vector<Edge> previous(n_);
 
@@ -124,16 +132,52 @@ std::vector<Graph::Edge> Graph::GetShortestPath(int from, int to) {
     }
   }
 
-  /// add assert here (?)
   return std::vector<Edge>();
 }
 
-/// can be further optimized(!!!)
 std::vector<std::vector<Graph::Edge>> Graph::GetShortestPaths(int from) {
+  assert(from >= 0 && from < n_);
+
   std::vector<std::vector<Edge>> result;
 
+  const long long kInfinity = std::numeric_limits<long long>::max();
+  std::vector<long long> distance(n_, kInfinity);
+  std::vector<Edge> previous(n_);
+
+  distance[from] = 0;
+  std::priority_queue<Path, std::vector<Path>, std::greater<Path>> sorted_paths;
+  sorted_paths.push(Path(distance[from], from));
+
+  while (sorted_paths.size() > 0) {
+    Path current_path = sorted_paths.top();
+    sorted_paths.pop();
+    int vertex = current_path.to;
+
+    if (distance[vertex] != current_path.length) {
+      continue;
+    }
+
+    for (Edge edge: connections_[vertex]) {
+      if (distance[edge.to] > distance[vertex] + edge.length) {
+        distance[edge.to] = distance[vertex] + edge.length;
+        previous[edge.to] = Edge(vertex, edge.length);
+        sorted_paths.push(Path(distance[edge.to], edge.to));
+      }
+    }
+  }
+
   for (int to = 0; to < n_; to++) {
-    result.push_back(GetShortestPath(from, to));
+    std::vector<Edge> to_result;
+    int current_location = to;
+
+    while (current_location != from) {
+      to_result.emplace_back(current_location,
+                          previous[current_location].length);
+      current_location = previous[current_location].to;
+    }
+
+    std::reverse(to_result.begin(), to_result.end());
+    result.push_back(to_result);
   }
   return result;
 }
