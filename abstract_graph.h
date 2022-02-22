@@ -1,0 +1,4 @@
+#ifndef ABSTRACT_GRAPH_H
+#define ABSTRACT_GRAPH_H
+
+#endif //ABSTRACT_GRAPH_H
