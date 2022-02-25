@@ -17,7 +17,15 @@ class Clique : public AbstractGraph {
   [[nodiscard]] std::vector<std::vector<Edge>> GetShortestPaths(int from) const override;
 
  private:
+  struct Path {
+    long long length;
+    int to;
 
+    Path();
+    Path(long long len, int new_to);
+
+    bool operator>(const Path& rhs) const;
+  };
   std::vector<std::vector<int>> connection_matrix_;
 };
 

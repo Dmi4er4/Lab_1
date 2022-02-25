@@ -71,3 +71,21 @@ TEST(Clique, GetPath) {
       }
   }
 }
+
+TEST(Clique, GetShortestPath) {
+  std::vector<std::vector<AbstractGraph::Edge>> connections(3);
+  connections[0].emplace_back(1, 3);
+  connections[0].emplace_back(2, 1);
+  connections[1].emplace_back(2, 1);
+  connections[1].emplace_back(0, 1);
+  connections[2].emplace_back(0, 1);
+  connections[2].emplace_back(1, 1);
+  Clique graph(connections);
+  std::vector<AbstractGraph::Edge>
+      shortest_path = graph.GetShortestPath(0, 1);
+  ASSERT_EQ(shortest_path.size(), 2);
+  ASSERT_EQ(shortest_path[0].to, 2);
+  ASSERT_EQ(shortest_path[1].to, 1);
+  ASSERT_EQ(shortest_path[0].length, 1);
+  ASSERT_EQ(shortest_path[1].length, 1);
+}

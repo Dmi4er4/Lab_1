@@ -17,6 +17,7 @@ class Chain : public AbstractGraph{
   [[nodiscard]] std::vector<std::vector<Edge>> GetShortestPaths(int from) const override;
 
  private:
+
   std::vector<Edge> connections_;
 };
 #endif //CHAIN_H
