@@ -1,19 +1,15 @@
-//
-// Created by andrew on 13.02.22.
-//
-
 #include "graph.h"
 
-Graph::Edge::Edge() : to(-1), length(-1) {}
+Graph::Graph() {
+  n_ = 0;
+}
 
-Graph::Edge::Edge(int new_to, int new_length)
-    : to(new_to), length(new_length) {}
+Graph::Graph(const std::vector<std::vector<Edge>>& from) : connections_(from) {
+  n_ = from.size();
+}
 
-Graph::Graph() : n_(0) {}
-
-Graph::Graph(std::vector<std::vector<Edge>> from) : n_(from.size()), connections_(from) {}
-
-Graph::Graph(int size) : n_(size) {
+Graph::Graph(int size){
+  n_ = size;
   connections_.resize(n_);
 
   for (int i = 0; i < n_; i++) {
@@ -29,7 +25,8 @@ Graph::Graph(int size) : n_(size) {
 
 int Graph::GetEdgeLength(int from, int to) const {
   assert(from >= 0 && from < n_);
-  
+  assert(to >= 0 && to < n_);
+
   for (Edge edge: connections_[from]) {
     if (edge.to == to) {
       return edge.length;
@@ -38,16 +35,12 @@ int Graph::GetEdgeLength(int from, int to) const {
   return 0;
 }
 
-const std::vector<Graph::Edge>& Graph::GetEdges(int from) const {
+std::vector<Graph::Edge> Graph::GetEdges(int from) const {
   assert(from >= 0 && from < n_);
   return connections_[from];
 }
 
-int Graph::GetSize() const {
-  return n_;
-}
-
-std::vector<Graph::Edge> Graph::GetAnyPath(int from, int to) {
+std::vector<Graph::Edge> Graph::GetAnyPath(int from, int to) const {
   assert(from >= 0 && from < n_);
   assert(to >= 0 && to < n_);
 
@@ -58,7 +51,7 @@ std::vector<Graph::Edge> Graph::GetAnyPath(int from, int to) {
   std::queue<int> visited_list;
 
   visited_list.push(from);
-  while (visited_list.size() > 0) {
+  while (!visited_list.empty()) {
     int vertex = visited_list.front();
     visited_list.pop();
 
@@ -85,10 +78,10 @@ std::vector<Graph::Edge> Graph::GetAnyPath(int from, int to) {
     }
   }
 
-  return std::vector<Edge>();
+  return {};
 }
 
-std::vector<Graph::Edge> Graph::GetShortestPath(int from, int to) {
+std::vector<Graph::Edge> Graph::GetShortestPath(int from, int to) const {
   assert(from >= 0 && from < n_);
   assert(to >= 0 && to < n_);
 
@@ -97,10 +90,10 @@ std::vector<Graph::Edge> Graph::GetShortestPath(int from, int to) {
   std::vector<Edge> previous(n_);
 
   distance[from] = 0;
-  std::priority_queue<Path, std::vector<Path>, std::greater<Path>> sorted_paths;
+  std::priority_queue<Path, std::vector<Path>, std::greater<>> sorted_paths;
   sorted_paths.push(Path(distance[from], from));
 
-  while (sorted_paths.size() > 0) {
+  while (!sorted_paths.empty()) {
     Path current_path = sorted_paths.top();
     sorted_paths.pop();
     int vertex = current_path.to;
@@ -132,10 +125,10 @@ std::vector<Graph::Edge> Graph::GetShortestPath(int from, int to) {
     }
   }
 
-  return std::vector<Edge>();
+  return {};
 }
 
-std::vector<std::vector<Graph::Edge>> Graph::GetShortestPaths(int from) {
+std::vector<std::vector<Graph::Edge>> Graph::GetShortestPaths(int from) const {
   assert(from >= 0 && from < n_);
 
   std::vector<std::vector<Edge>> result;
@@ -145,10 +138,10 @@ std::vector<std::vector<Graph::Edge>> Graph::GetShortestPaths(int from) {
   std::vector<Edge> previous(n_);
 
   distance[from] = 0;
-  std::priority_queue<Path, std::vector<Path>, std::greater<Path>> sorted_paths;
+  std::priority_queue<Path, std::vector<Path>, std::greater<>> sorted_paths;
   sorted_paths.push(Path(distance[from], from));
 
-  while (sorted_paths.size() > 0) {
+  while (!sorted_paths.empty()) {
     Path current_path = sorted_paths.top();
     sorted_paths.pop();
     int vertex = current_path.to;
