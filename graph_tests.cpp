@@ -1,7 +1,3 @@
-//
-// Created by andrew on 13.02.22.
-//
-
 #include "graph.h"
 #include "gtest/gtest.h"
 
