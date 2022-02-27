@@ -138,6 +138,7 @@ ChainTrafficManager::ChainTrafficManager(AbstractGraph* graph,
 int ChainTrafficManager::Transport(int from, int to, int buns_amount) {
   assert(from >= 0 && from < graph_->GetSize());
   assert(to >= 0 && to < graph_->GetSize());
+  
   int vehicles_amount =
       buns_amount / vehicle_capacity_ + (buns_amount % vehicle_capacity_ > 0);
   std::vector<std::pair<int, int>> sorted_paths;
