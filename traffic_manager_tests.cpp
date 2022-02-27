@@ -109,7 +109,7 @@ TEST(TrafficManager, ChainConstructorsGettersSetters) {
   Chain chain(5);
   std::vector<int> buns_amounts{1, 2, 3, 4, 5};
   std::vector<int> vehicles{5, 4, 3, 2, 1};
-  TrafficManager manager(&chain, buns_amounts, vehicles, 1);
+  ChainTrafficManager manager(&chain, buns_amounts, vehicles, 1);
   EXPECT_EQ(manager.GetTotalBunsAmount(), 15);
   EXPECT_EQ(manager.GetTotalVehicles(), 15);
   EXPECT_EQ(manager.GetBunsAmounts(), buns_amounts);
@@ -129,7 +129,7 @@ TEST(TrafficManager, ChainMoveVehicles) {
   Chain chain(5);
   std::vector<int> buns_amounts{1, 2, 3, 4, 5};
   std::vector<int> vehicles{5, 4, 3, 2, 1};
-  TrafficManager manager(&chain, buns_amounts, vehicles, 1);
+  ChainTrafficManager manager(&chain, buns_amounts, vehicles, 1);
   int transport_time = manager.MoveVehicles(0, 3, 3);
   EXPECT_EQ(transport_time, 3);
   vehicles[3] += 3;
@@ -141,7 +141,7 @@ TEST(TrafficManager, ChainTransport) {
   Chain chain(5);
   std::vector<int> buns_amounts{1, 0, 5, 4, 5};
   std::vector<int> vehicles{5, 4, 3, 2, 1};
-  TrafficManager manager(&chain, buns_amounts, vehicles, 1);
+  ChainTrafficManager manager(&chain, buns_amounts, vehicles, 1);
   int transport_time = manager.Transport(2, 4, 5);
   EXPECT_EQ(transport_time, 3);
   buns_amounts[4] += 5;

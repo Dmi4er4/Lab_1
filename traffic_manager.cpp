@@ -1,7 +1,7 @@
+#include "traffic_manager.h"
 #include <algorithm>
 #include <cassert>
 #include <utility>
-#include "traffic_manager.h"
 
 const int kInfinity = std::numeric_limits<int>::max();
 
@@ -84,10 +84,13 @@ int TrafficManager::Transport(int from, int to, int buns_amount) {
   assert(to >= 0 && to < graph_->GetSize());
   int vehicles_amount =
       buns_amount / vehicle_capacity_ + (buns_amount % vehicle_capacity_ > 0);
+  auto shorted_paths = graph_->GetShortestPaths(from);
+
   std::vector<std::pair<int, int>> sorted_paths;
 
   for (int i = 0; i < graph_->GetSize(); i++) {
-    auto path = graph_->GetShortestPath(i, from);
+    const auto& path = shorted_paths[i];
+
     int result = 0;
     for (auto element: path) {
       result += element.length;
@@ -123,4 +126,47 @@ TrafficManager::TrafficManager(AbstractGraph* graph,
   SetBunsAmounts(buns_amounts);
   SetVehicles(vehicles);
   vehicle_capacity_ = vehicle_capacity;
+}
+
+ChainTrafficManager::ChainTrafficManager(AbstractGraph* graph,
+                                         const std::vector<int>& buns_amounts,
+                                         const std::vector<int>& vehicles,
+                                         int vehicle_capacity)
+    : TrafficManager(graph, buns_amounts, vehicles, vehicle_capacity) {
+}
+
+int ChainTrafficManager::Transport(int from, int to, int buns_amount) {
+  assert(from >= 0 && from < graph_->GetSize());
+  assert(to >= 0 && to < graph_->GetSize());
+  int vehicles_amount =
+      buns_amount / vehicle_capacity_ + (buns_amount % vehicle_capacity_ > 0);
+  std::vector<std::pair<int, int>> sorted_paths;
+
+  for (int i = 0; i < graph_->GetSize(); i++) {
+    auto path = graph_->GetShortestPath(i, from);
+    int result = 0;
+    for (auto element: path) {
+      result += element.length;
+    }
+    if (path.empty()) {
+      result = kInfinity;
+    }
+    sorted_paths.emplace_back(result, i);
+  }
+  std::sort(sorted_paths.begin(), sorted_paths.end());
+  int max_movement_time = 0;
+  for (auto& path: sorted_paths) {
+    int vehicles_to_move = std::min(vehicles_[path.second],
+                                    vehicles_amount - vehicles_[from]);
+    vehicles_[path.second] -= vehicles_to_move;
+    vehicles_[from] += vehicles_to_move;
+    max_movement_time = std::max(path.first, max_movement_time);
+    if (vehicles_[from] == vehicles_amount) {
+      break;
+    }
+  }
+  int result = max_movement_time + MoveVehicles(from, to, vehicles_amount);
+  buns_amounts_[from] -= buns_amount;
+  buns_amounts_[to] += buns_amount;
+  return result;
 }

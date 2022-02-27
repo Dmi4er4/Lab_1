@@ -24,9 +24,9 @@ class TrafficManager {
   [[nodiscard]] int GetTotalVehicles() const;
 
   int MoveVehicles(int, int, int);
-  int Transport(int, int, int);
+  virtual int Transport(int, int, int);
 
- private:
+ protected:
   AbstractGraph* graph_;
   std::vector<int> buns_amounts_;
   std::vector<int> vehicles_;
@@ -34,4 +34,15 @@ class TrafficManager {
   int total_buns_amount_{};
   int total_vehicles_{};
 };
+
+class ChainTrafficManager : public TrafficManager {
+ public:
+  ChainTrafficManager(AbstractGraph* graph,
+                 const std::vector<int>& buns_amounts,
+                 const std::vector<int>& vehicles,
+                 int vehicle_capacity);
+
+  virtual int Transport(int, int, int) override;
+};
+
 #endif //TRAFFIC_MANAGER_H
