@@ -114,20 +114,25 @@ std::vector<std::vector<AbstractGraph::Edge>> Clique::GetShortestPaths(int from)
 
   const long long kInfinity = std::numeric_limits<long long>::max();
   std::vector<long long> distance(n_, kInfinity);
+  std::vector<bool> visited(n_, false);
   std::vector<Edge> previous(n_);
 
   distance[from] = 0;
-  std::priority_queue<Path, std::vector<Path>, std::greater<>> sorted_paths;
-  sorted_paths.push(Path(distance[from], from));
 
-  while (!sorted_paths.empty()) {
-    Path current_path = sorted_paths.top();
-    sorted_paths.pop();
-    int vertex = current_path.to;
+  for (int iteration = 0; iteration < n_; iteration++) {
+    int vertex = -1;
+    for (int candidate = 0; candidate < n_; candidate++) {
+      if (visited[candidate]) {
+        continue;
+      }
 
-    if (distance[vertex] != current_path.length) {
-      continue;
+      if (vertex < 0 || distance[vertex] > distance[candidate]) {
+        vertex = candidate;
+      }
     }
+
+    visited[vertex] = true;
+
     for (int i = 0; i < n_; i++) {
       if (i == vertex) {
         continue;
@@ -135,7 +140,6 @@ std::vector<std::vector<AbstractGraph::Edge>> Clique::GetShortestPaths(int from)
       if (distance[i] > distance[vertex] + connection_matrix_[vertex][i]) {
         distance[i] = distance[vertex] + connection_matrix_[vertex][i];
         previous[i] = Edge(vertex, connection_matrix_[vertex][i]);
-        sorted_paths.push(Path(distance[i], i));
       }
     }
   }

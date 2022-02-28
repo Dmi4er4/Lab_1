@@ -1,64 +1,87 @@
-#include "clique.h"
-#include <cassert>
-#include <limits>
-#include <queue>
-#include <algorithm>
+#include "graph.h"
 
-Clique::Clique() {
+Graph::Graph() {
   n_ = 0;
 }
-Clique::Clique(int size) {
-  n_ = size;
-  connection_matrix_.resize(size);
-  for (int i = 0; i < size; i++) {
-    connection_matrix_[i].resize(size, 1);
-  }
-}
-Clique::Clique(const std::vector<std::vector<Edge>>& from) {
+
+Graph::Graph(const std::vector<std::vector<Edge>>& from) : connections_(from) {
   n_ = from.size();
-  connection_matrix_.resize(n_);
+}
+
+Graph::Graph(int size){
+  n_ = size;
+  connections_.resize(n_);
+
   for (int i = 0; i < n_; i++) {
-    connection_matrix_[i].resize(n_, 0);
-  }
-  for (int i = 0; i < n_; i++) {
-    assert(from[i].size() == n_ - 1);
-    for (int j = 0; j < from[i].size(); j++) {
-      connection_matrix_[i][from[i][j].to] = from[i][j].length;
+    for (int j = 0; j < n_; j++) {
+      if (i == j) {
+        continue;
+      }
+
+      connections_[i].push_back(Edge(j, 1));
     }
   }
 }
-Clique::Path::Path() : length(-1), to(-1) {}
 
-Clique::Path::Path(long long len, int new_to) : length(len), to(new_to) {}
-
-bool Clique::Path::operator>(const Path& rhs) const {
-  return (length > rhs.length);
-}
-int Clique::GetEdgeLength(int from, int to) const {
-  assert(from >= 0 && from < n_);
-  return connection_matrix_[from][to];
-}
-std::vector<AbstractGraph::Edge> Clique::GetEdges(int from) const {
-  assert(from >= 0 && from < n_);
-  std::vector<AbstractGraph::Edge> result;
-  for (int i = 0; i < n_; i++) {
-    if (i != from) {
-      result.emplace_back(i, connection_matrix_[from][i]);
-    }
-  }
-  return result;
-}
-std::vector<AbstractGraph::Edge> Clique::GetAnyPath(int from, int to) const {
+int Graph::GetEdgeLength(int from, int to) const {
   assert(from >= 0 && from < n_);
   assert(to >= 0 && to < n_);
-  std::vector<AbstractGraph::Edge> result;
-  if (from != to) {
-    result.emplace_back(to, connection_matrix_[from][to]);
+
+  for (Edge edge: connections_[from]) {
+    if (edge.to == to) {
+      return edge.length;
+    }
   }
-  return result;
+  return 0;
 }
-std::vector<AbstractGraph::Edge> Clique::GetShortestPath(int from,
-                                                         int to) const {
+
+std::vector<Graph::Edge> Graph::GetEdges(int from) const {
+  assert(from >= 0 && from < n_);
+  return connections_[from];
+}
+
+std::vector<Graph::Edge> Graph::GetAnyPath(int from, int to) const {
+  assert(from >= 0 && from < n_);
+  assert(to >= 0 && to < n_);
+
+  std::vector<bool> visited(n_, false);
+  std::vector<Edge> previous(n_);
+
+  visited[from] = true;
+  std::queue<int> visited_list;
+
+  visited_list.push(from);
+  while (!visited_list.empty()) {
+    int vertex = visited_list.front();
+    visited_list.pop();
+
+    for (Edge edge: connections_[vertex]) {
+      if (!visited[edge.to]) {
+        visited[edge.to] = true;
+        previous[edge.to] = Edge(vertex, edge.length);
+        visited_list.push(edge.to);
+
+        if (edge.to == to) {
+          std::vector<Edge> result;
+          int current_location = to;
+
+          while (current_location != from) {
+            result.emplace_back(current_location,
+                                previous[current_location].length);
+            current_location = previous[current_location].to;
+          }
+
+          std::reverse(result.begin(), result.end());
+          return result;
+        }
+      }
+    }
+  }
+
+  return {};
+}
+
+std::vector<Graph::Edge> Graph::GetShortestPath(int from, int to) const {
   assert(from >= 0 && from < n_);
   assert(to >= 0 && to < n_);
 
@@ -67,8 +90,7 @@ std::vector<AbstractGraph::Edge> Clique::GetShortestPath(int from,
   std::vector<Edge> previous(n_);
 
   distance[from] = 0;
-  std::priority_queue<Clique::Path, std::vector<Path>, std::greater<>>
-      sorted_paths;
+  std::priority_queue<Path, std::vector<Path>, std::greater<>> sorted_paths;
   sorted_paths.push(Path(distance[from], from));
 
   while (!sorted_paths.empty()) {
@@ -93,53 +115,46 @@ std::vector<AbstractGraph::Edge> Clique::GetShortestPath(int from,
       std::reverse(result.begin(), result.end());
       return result;
     }
-    for (int i = 0; i < n_; i++) {
-      if (i == vertex) {
-        continue;
-      }
-      if (distance[i] > distance[vertex] + connection_matrix_[vertex][i]) {
-        distance[i] = distance[vertex] + connection_matrix_[vertex][i];
-        previous[i] = Edge(vertex, connection_matrix_[vertex][i]);
-        sorted_paths.push(Path(distance[i], i));
+
+    for (Edge edge: connections_[vertex]) {
+      if (distance[edge.to] > distance[vertex] + edge.length) {
+        distance[edge.to] = distance[vertex] + edge.length;
+        previous[edge.to] = Edge(vertex, edge.length);
+        sorted_paths.push(Path(distance[edge.to], edge.to));
       }
     }
   }
 
   return {};
 }
-std::vector<std::vector<AbstractGraph::Edge>> Clique::GetShortestPaths(int from) const {
+
+std::vector<std::vector<Graph::Edge>> Graph::GetShortestPaths(int from) const {
   assert(from >= 0 && from < n_);
 
   std::vector<std::vector<Edge>> result;
 
   const long long kInfinity = std::numeric_limits<long long>::max();
   std::vector<long long> distance(n_, kInfinity);
-  std::vector<bool> visited(n_, false);
   std::vector<Edge> previous(n_);
 
   distance[from] = 0;
+  std::priority_queue<Path, std::vector<Path>, std::greater<>> sorted_paths;
+  sorted_paths.push(Path(distance[from], from));
 
-  for (int iteration = 0; iteration < n_; iteration++) {
-    int vertex = -1;
-    for (int candidate = 0; candidate < n_; candidate++) {
-      if (visited[candidate]) {
-        continue;
-      }
+  while (!sorted_paths.empty()) {
+    Path current_path = sorted_paths.top();
+    sorted_paths.pop();
+    int vertex = current_path.to;
 
-      if (vertex < 0 || distance[vertex] > distance[candidate]) {
-        vertex = candidate;
-      }
+    if (distance[vertex] != current_path.length) {
+      continue;
     }
 
-    visited[vertex] = true;
-
-    for (int i = 0; i < n_; i++) {
-      if (i == vertex) {
-        continue;
-      }
-      if (distance[i] > distance[vertex] + connection_matrix_[vertex][i]) {
-        distance[i] = distance[vertex] + connection_matrix_[vertex][i];
-        previous[i] = Edge(vertex, connection_matrix_[vertex][i]);
+    for (Edge edge: connections_[vertex]) {
+      if (distance[edge.to] > distance[vertex] + edge.length) {
+        distance[edge.to] = distance[vertex] + edge.length;
+        previous[edge.to] = Edge(vertex, edge.length);
+        sorted_paths.push(Path(distance[edge.to], edge.to));
       }
     }
   }
@@ -158,4 +173,12 @@ std::vector<std::vector<AbstractGraph::Edge>> Clique::GetShortestPaths(int from)
     result.push_back(to_result);
   }
   return result;
+}
+
+Graph::Path::Path() : length(-1), to(-1) {}
+
+Graph::Path::Path(long long len, int new_to) : length(len), to(new_to) {}
+
+bool Graph::Path::operator>(const Path& rhs) const {
+  return (length > rhs.length);
 }
