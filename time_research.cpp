@@ -9,29 +9,12 @@
 
 const long long kTimeConstant = 1'000'000;
 const int kIterations = 100'000;
-// const int kIterations = 50'000;
 const int kMaxValue = 1'000'000;
 const int kMaxWeight = 1'000;
 // const int kSizes = 5;
 // const int graph_sizes[kSizes] = {10, 20, 50, 100, 200};
-// const int kSizes = 4;
-// const int graph_sizes[kSizes] = {10, 20, 50, 100};
 const int kSizes = 1;
 const int graph_sizes[kSizes] = {500};
-
-// TEST(Time, Simple) {
-//   long long start_time = std::chrono::system_clock().now().time_since_epoch().count();
-//
-//   long long ans = 0;
-//   for (int i = 0; i < 100100100; i++) {
-//     ans += i;
-//   }
-//   std::cout << ans << '\n';
-//
-//   long long end_time = std::chrono::system_clock().now().time_since_epoch().count();
-//
-//   std::cout << (end_time - start_time) / kTimeConstant << '\n';
-// }
 
 TEST(Time, FullyConnectedGraph) {
   std::mt19937 graph_random(416);
