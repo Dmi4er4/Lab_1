@@ -21,7 +21,8 @@ Clique::Clique(const std::vector<std::vector<Edge>>& from) {
     connection_matrix_[i].resize(n_, 0);
   }
   for (int i = 0; i < n_; i++) {
-    assert(from[i].size() == n_ - 1);
+    assert(from[i].size() == n_ - 1 ||
+        from[i].size() == n_);
     for (int j = 0; j < from[i].size(); j++) {
       connection_matrix_[i][from[i][j].to] = from[i][j].length;
     }

@@ -17,6 +17,7 @@ Chain::Chain(int size) {
 }
 Chain::Chain(const std::vector<std::vector<Edge>>& from) {
   n_ = from.size();
+  connections_.resize(n_);
   for (int i = 0; i < n_; i++) {
     assert(from[i].size() <= 1);
     connections_[i] = from[i].empty() ? Edge(-1, 1) : from[i][0];
